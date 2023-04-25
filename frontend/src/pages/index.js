@@ -10,6 +10,7 @@ function sendCommand(command) {
 }
 
 export default function Homepage() {
+  const videoRef = React.useRef();
   const [angleReading, setAngleReading] = useState(0);
 
   const debouncedRotation = React.useRef(
@@ -34,17 +35,33 @@ export default function Homepage() {
   }, [debouncedRotation]);
 
   React.useEffect(() => {
-    console.log("angle", angleReading);
-  }, [angleReading]);
+    async function getJSMpeg() {
+      const JSMpeg = await import("jsmpeg");
+
+      if (typeof window !== "undefined") {
+        const canvas = videoRef.current;
+        const url = `ws://localhost:3001/stream`;
+        const player = new JSMpeg(url, { canvas });
+      }
+    }
+  }, []);
 
   return (
     <>
+      <canvas id="video-canvas" ref={videoRef} />
+
       <div className="flex justify-center space-x-8 py-12">
         <button
           className="bg-white text-black px-4 py-2 rounded-md"
           onClick={sendCommand("command")}
         >
           Connect!
+        </button>
+        <button
+          className="bg-white text-black px-4 py-2 rounded-md"
+          onClick={sendCommand("streamon")}
+        >
+          Stream
         </button>
         <button
           className="bg-white text-black px-4 py-2 rounded-md"
@@ -121,9 +138,9 @@ export default function Homepage() {
         />
       </div>
 
-      <div class="w-full px-24 bg-slate-50/10 py-12">
-        <div class="flex justify-between">
-          <div class="flex flex-col justify-center items-center">
+      <div className="w-full px-24 bg-slate-50/10 py-12">
+        <div className="flex justify-between">
+          <div className="flex flex-col justify-center items-center">
             <button
               className="bg-white text-black px-4 py-2 rounded-md"
               onClick={sendCommand("forward 100")}
@@ -144,7 +161,7 @@ export default function Homepage() {
               </svg>
             </button>
 
-            <div class="flex space-x-4 my-4">
+            <div className="flex space-x-4 my-4">
               <button
                 className="bg-white text-black px-4 py-2 rounded-md"
                 onClick={sendCommand("left 100")}
@@ -202,6 +219,90 @@ export default function Homepage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex items-center justify-center space-x-4">
+            <button
+              className="bg-white text-black px-4 py-2 rounded-md"
+              onClick={sendCommand("ccw 45")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                />
+              </svg>
+            </button>
+
+            <button
+              className="bg-white text-black px-4 py-2 rounded-md"
+              onClick={sendCommand("cw 45")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="flex items-center justify-center space-x-4">
+            <button
+              className="bg-white text-black px-4 py-2 rounded-md"
+              onClick={sendCommand("down 20")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+                />
+              </svg>
+            </button>
+
+            <button
+              className="bg-white text-black px-4 py-2 rounded-md"
+              onClick={sendCommand("up 20")}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6 rotate-180"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
                 />
               </svg>
             </button>

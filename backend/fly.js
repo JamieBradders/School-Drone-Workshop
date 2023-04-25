@@ -1,18 +1,80 @@
 const dgram = require("dgram");
 const app = require("express")();
-const http = require("http").Server(app);
-const io = require("socket.io")(http, {
+const http = require("http");
+const guiServer = require("http").Server(app);
+const wait = require("waait");
+const WebSocket = require("ws");
+const io = require("socket.io")(guiServer, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
-const wait = require("waait");
-// const commandDelays = require("./commandDelays");
-const throttle = require("lodash/throttle");
 
-const PORT = 8889;
+// const throttle = require("lodash/throttle");
+// const commandDelays = require("./commandDelays");
+
 const HOST = "192.168.10.1";
+const PORT = 8889;
+
+// Stream config
+const STREAM_PORT = 3001;
+
+// We'll spawn ffmpeg as a separate process
+const spawn = require("child_process").spawn;
+
+const streamServer = http
+  .createServer(function (request, response) {
+    console.log(
+      `Stream Server: Received request ${request.socket.remoteAddress} : ${request.socket.remotePort}`
+    );
+
+    // When data comes from FFmpeg, send it to the web socket
+    request.on("data", function (data) {
+      webSocketServer.broadcast(data);
+    });
+  })
+  .listen(STREAM_PORT);
+
+const webSocketServer = new WebSocket.Server({
+  server: streamServer,
+});
+
+webSocketServer.broadcast = (data) => {
+  webSocketServer.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
+  });
+};
+
+// Delay for 3 seconds before we start ffmpeg
+setTimeout(function () {
+  var args = [
+    "-i",
+    "udp://0.0.0.0:11111",
+    "-r",
+    "30",
+    "-s",
+    "960x720",
+    "-codec:v",
+    "mpeg1video",
+    "-b",
+    "800k",
+    "-f",
+    "mpegts",
+    "http://127.0.0.1:3001/stream",
+  ];
+
+  // Spawn an ffmpeg instance
+  var streamer = spawn("ffmpeg", args);
+  // Uncomment if you want to see ffmpeg stream info
+  streamer.stderr.pipe(process.stderr);
+  streamer.on("exit", function (code) {
+    console.log("Failure", code);
+  });
+}, 3000);
+
 const drone = dgram.createSocket("udp4");
 drone.bind(PORT);
 
@@ -90,6 +152,6 @@ io.on("connection", (socket) => {
 //   }, 100)
 // );
 
-http.listen(6767, () => {
+guiServer.listen(6767, () => {
   console.log("Socket io server up and running");
 });
