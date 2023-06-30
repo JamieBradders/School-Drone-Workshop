@@ -7,30 +7,27 @@ const io = require("socket.io")(http, {
     methods: ["GET", "POST"],
   },
 });
+
 const wait = require("waait");
-// const commandDelays = require("./commandDelays");
 const throttle = require("lodash/throttle");
 
+// const commandDelays = require("./commandDelays");
+
 const PORT = 8889;
+const STATE_PORT = 8890;
 const HOST = "192.168.10.1";
+
+// Create udp4 socket
 const drone = dgram.createSocket("udp4");
+
+// Bind to our port
 drone.bind(PORT);
 
-function parseState(state) {
-  if (state?.length > 0) {
-    return state
-      .map((x) => x.split(":"))
-      .reduce((data, [key, value]) => {
-        data[key] = value;
-        return data;
-      }, {});
-  }
-
-  return "";
-}
-
+// Create udp4 socket for drone state
 const droneState = dgram.createSocket("udp4");
-droneState.bind(8890);
+
+// Bind to our port
+droneState.bind(STATE_PORT);
 
 drone.on("message", (message) => {
   console.log(`🤖 : ${message}`);
@@ -43,28 +40,6 @@ function handleError(err) {
     console.log(err);
   }
 }
-
-// const commands = ["command", "battery?", "takeoff", "flip r", "land"];
-// const commands = ['command', 'battery?'];
-
-// let i = 0;
-
-// drone.send("command", 0, "command".length, PORT, HOST, handleError);
-
-// async function go() {
-//   const command = commands[i];
-//   const delay = commandDelays[command];
-//   console.log(`running command: ${command}`);
-//   drone.send(command, 0, command.length, PORT, HOST, handleError);
-//   await wait(delay);
-//   i += 1;
-//   if (i < commands.length) {
-//     return go();
-//   }
-//   console.log("done!");
-// }
-
-// go();
 
 io.on("connection", (socket) => {
   socket.on("command", async (command) => {
@@ -79,16 +54,28 @@ io.on("connection", (socket) => {
   socket.emit("status", "CONNECTED");
 });
 
-// droneState.on(
-//   "message",
-//   throttle((state) => {
-//     if (state) {
-//       const formattedState = parseState(state.toString());
-//       console.log(formattedState);
-//       io.sockets.emit("dronestate", formattedState);
-//     }
-//   }, 100)
-// );
+function parseState(state) {
+  if (state?.length > 0) {
+    return state
+      .map((x) => x.split(":"))
+      .reduce((data, [key, value]) => {
+        data[key] = value;
+        return data;
+      }, {});
+  }
+
+  return "";
+}
+
+droneState.on(
+  "message",
+  throttle((state) => {
+    if (state) {
+      const formattedState = parseState(state.toString());
+      io.sockets.emit("dronestate", formattedState);
+    }
+  }, 100)
+);
 
 http.listen(6767, () => {
   console.log("Socket io server up and running");
