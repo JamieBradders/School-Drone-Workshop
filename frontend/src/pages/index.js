@@ -121,9 +121,9 @@ export default function Homepage() {
         />
       </div>
 
-      <div class="w-full px-24 bg-slate-50/10 py-12">
-        <div class="flex justify-between">
-          <div class="flex flex-col justify-center items-center">
+      <div className="w-full px-24 bg-slate-50/10 py-12">
+        <div className="flex justify-between">
+          <div className="flex flex-col justify-center items-center">
             <button
               className="bg-white text-black px-4 py-2 rounded-md"
               onClick={sendCommand("forward 100")}
@@ -144,7 +144,7 @@ export default function Homepage() {
               </svg>
             </button>
 
-            <div class="flex space-x-4 my-4">
+            <div className="flex space-x-4 my-4">
               <button
                 className="bg-white text-black px-4 py-2 rounded-md"
                 onClick={sendCommand("left 100")}
