@@ -1,5 +1,6 @@
 import { debounce } from "lodash";
 import React, { useState } from "react";
+
 import socket from "../../socket";
 
 function sendCommand(command) {
@@ -32,10 +33,6 @@ export default function Homepage() {
       debouncedRotation.cancel();
     };
   }, [debouncedRotation]);
-
-  React.useEffect(() => {
-    console.log("angle", angleReading);
-  }, [angleReading]);
 
   return (
     <>

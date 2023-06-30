@@ -1,6 +1,8 @@
 const dgram = require("dgram");
 const app = require("express")();
 const http = require("http").Server(app);
+const wait = require("waait");
+const throttle = require("lodash/throttle");
 const io = require("socket.io")(http, {
   cors: {
     origin: "http://localhost:3000",
@@ -8,18 +10,12 @@ const io = require("socket.io")(http, {
   },
 });
 
-const wait = require("waait");
-const throttle = require("lodash/throttle");
-
-// const commandDelays = require("./commandDelays");
-
-const PORT = 8889;
-const STATE_PORT = 8890;
-const HOST = "192.168.10.1";
+const commandDelays = require("./commandDelays");
 
 // Assign the port number to a variable
-const DRONE_PORT = "the-port-number";
+const DRONE_PORT = 8889;
 const DRONE_HOST = "192.168.10.1";
+const STATE_PORT = 8890;
 
 // Create udp4 socket for drone commands and state
 const drone = dgram.createSocket("udp4");
@@ -27,7 +23,7 @@ const droneState = dgram.createSocket("udp4");
 
 // Bind the port to the socket
 drone.bind(DRONE_PORT);
-droneState.bind(DRONE_PORT);
+droneState.bind(STATE_PORT);
 
 drone.on("message", (message) => {
   console.log(`🤖 : ${message}`);
@@ -43,12 +39,15 @@ function handleError(err) {
 
 io.on("connection", (socket) => {
   socket.on("command", async (command) => {
-    console.log("command Sent from browser");
-    console.log(command);
+    console.log("Command Sent from browser ->", command);
 
-    await wait(300);
+    const delay = commandDelays[command] || undefined;
 
-    drone.send(command, 0, command.length, PORT, HOST, handleError);
+    if (delay) {
+      await wait(delay);
+    }
+
+    drone.send(command, 0, command.length, PORT, DRONE_HOST, handleError);
   });
 
   socket.emit("status", "CONNECTED");
