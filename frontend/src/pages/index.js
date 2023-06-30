@@ -43,20 +43,17 @@ export default function Homepage() {
         >
           Connect!
         </button>
-        <button
-          className="bg-white text-black px-4 py-2 rounded-md"
-          onClick={sendCommand("takeoff")}
-        >
+        <button className="bg-white text-black px-4 py-2 rounded-md">
           Take Off!
         </button>
         <button
           className="bg-white text-black px-4 py-2 rounded-md"
-          onClick={sendCommand("land")}
+          onClick={sendCommand("jump")}
         >
           Land!
         </button>
         <button
-          className="bg-white text-black px-4 py-2 rounded-md"
+          className="bg-red-600 text-black px-4 py-2 rounded-md"
           onClick={sendCommand("flip l")}
         >
           Flip Left!
@@ -144,7 +141,7 @@ export default function Homepage() {
             <div className="flex space-x-4 my-4">
               <button
                 className="bg-white text-black px-4 py-2 rounded-md"
-                onClick={sendCommand("left 100")}
+                onClick={sendCommand("left 10")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -164,7 +161,7 @@ export default function Homepage() {
 
               <button
                 className="bg-white text-black px-4 py-2 rounded-md"
-                onClick={sendCommand("right 100")}
+                onClick={sendCommand("right 10")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
