@@ -17,17 +17,17 @@ const PORT = 8889;
 const STATE_PORT = 8890;
 const HOST = "192.168.10.1";
 
-// Create udp4 socket
+// Assign the port number to a variable
+const DRONE_PORT = "the-port-number";
+const DRONE_HOST = "192.168.10.1";
+
+// Create udp4 socket for drone commands and state
 const drone = dgram.createSocket("udp4");
-
-// Bind to our port
-drone.bind(PORT);
-
-// Create udp4 socket for drone state
 const droneState = dgram.createSocket("udp4");
 
-// Bind to our port
-droneState.bind(STATE_PORT);
+// Bind the port to the socket
+drone.bind(DRONE_PORT);
+droneState.bind(DRONE_PORT);
 
 drone.on("message", (message) => {
   console.log(`🤖 : ${message}`);
