@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
       await wait(delay);
     }
 
-    drone.send(command, 0, command.length, PORT, DRONE_HOST, handleError);
+    drone.send(command, 0, command.length, DRONE_PORT, DRONE_HOST, handleError);
   });
 
   socket.emit("status", "CONNECTED");
@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
 function parseState(state) {
   if (state?.length > 0) {
     return state
-      .map((x) => x.split(":"))
+      .map((x) => x.split(";"))
       .reduce((data, [key, value]) => {
         data[key] = value;
         return data;
